@@ -25,7 +25,7 @@ export class TypeOrmUserRepository implements UserRepositoryPort {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const ormEntity = await this.repository.findOne({ where: { email } });
+    const ormEntity = await this.repository.findOne({ where: { Email: email } });
     return ormEntity ? UserMapper.toDomain(ormEntity) : null;
   }
 
@@ -39,7 +39,7 @@ export class TypeOrmUserRepository implements UserRepositoryPort {
   }
 
   async existsByEmail(email: string): Promise<boolean> {
-    const count = await this.repository.count({ where: { email } });
+    const count = await this.repository.count({ where: { Email: email } });
     return count > 0;
   }
 }

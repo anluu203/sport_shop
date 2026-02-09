@@ -6,13 +6,16 @@ import { UserNotFoundException } from '../../../../core/exceptions/domain.except
 export class DeleteUserUseCase {
   constructor(private readonly userRepository: UserRepositoryPort) {}
 
-  async execute(userId: string): Promise<void> {
+  async execute(userId: string, deletedBy?: string): Promise<void> {
     const user = await this.userRepository.findById(userId);
     
     if (!user) {
       throw new UserNotFoundException(userId);
     }
 
-    await this.userRepository.delete(userId);
+    // Soft delete user
+    user.delete(deletedBy || 'SYSTEM');
+    await this.userRepository.save(user);
   }
 }
+

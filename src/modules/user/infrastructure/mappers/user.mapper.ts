@@ -1,35 +1,30 @@
-import { User, UserRole, UserStatus } from '../../domain/entities/user.entity';
+import { User } from '../../domain/entities/user.entity';
 import { UserEntity } from '../entities/typeorm-user.entity';
 
 export class UserMapper {
   static toDomain(ormEntity: UserEntity): User {
     return new User({
       id: ormEntity.id,
-      email: ormEntity.email,
-      password: ormEntity.password,
-      fullName: ormEntity.fullName,
-      phone: ormEntity.phone,
-      address: ormEntity.address,
-      role: ormEntity.role as UserRole,
-      status: ormEntity.status as UserStatus,
-      isPasswordHashed: true,
-      createdAt: ormEntity.createdAt,
-      updatedAt: ormEntity.updatedAt,
+      username: ormEntity.Username,
+      email: ormEntity.Email,
+      passwordHash: ormEntity.PasswordHash,
+      isDeleted: ormEntity.IsDeleted,
+      deletedBy: ormEntity.DeletedBy,
+      deletedAt: ormEntity.DeletedAt,
+      createdAt: ormEntity.CreatedAt,
     });
   }
 
   static toPersistence(domainEntity: User): UserEntity {
     const ormEntity = new UserEntity();
     ormEntity.id = domainEntity.id;
-    ormEntity.email = domainEntity.getEmail();
-    ormEntity.password = domainEntity.getPassword();
-    ormEntity.fullName = domainEntity.getFullName();
-    ormEntity.phone = domainEntity.getPhone();
-    ormEntity.address = domainEntity.getAddress();
-    ormEntity.role = domainEntity.getRole();
-    ormEntity.status = domainEntity.getStatus();
-    ormEntity.createdAt = domainEntity.createdAt;
-    ormEntity.updatedAt = domainEntity.updatedAt;
+    ormEntity.Username = domainEntity.getUsername();
+    ormEntity.Email = domainEntity.getEmail();
+    ormEntity.PasswordHash = domainEntity.getPasswordHash();
+    ormEntity.IsDeleted = domainEntity.getIsDeleted();
+    ormEntity.DeletedBy = domainEntity.getDeletedBy();
+    ormEntity.DeletedAt = domainEntity.getDeletedAt();
+    ormEntity.CreatedAt = domainEntity.createdAt;
     return ormEntity;
   }
 }

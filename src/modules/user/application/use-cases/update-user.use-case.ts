@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepositoryPort } from '../../domain/ports/user.repository.port';
+import { PasswordHashServicePort } from '../../domain/ports/password-hash.service.port';
 import { UpdateUserDto } from '../dtos/update-user.dto';
-import { UserDto } from '../dtos/user.dto';
+import { UserResponseDto } from '../../presentation/dtos/user-response.dto';
 import { UserNotFoundException } from '../../../../core/exceptions/domain.exception';
 import { User } from '../../domain/entities/user.entity';
 
 @Injectable()
 export class UpdateUserUseCase {
-  constructor(private readonly userRepository: UserRepositoryPort) {}
+  constructor(
+    private readonly userRepository: UserRepositoryPort,
+    private readonly passwordHashService: PasswordHashServicePort,
+  ) {}
 
-  async execute(userId: string, dto: UpdateUserDto): Promise<UserDto> {
+  async execute(userId: string, dto: UpdateUserDto): Promise<UserResponseDto> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UserNotFoundException(userId);
     }
 
-    // Update user profile
-    user.updateProfile(
-      dto.fullName ?? user.getFullName(),
-      dto.phone ?? user.getPhone(),
-      dto.address ?? user.getAddress(),
-    );
+    // Update password if provided
+    if (dto.password) {
+      const hashedPassword = await this.passwordHashService.hash(dto.password);
+      user.changePassword(hashedPassword);
+    }
 
     // Save updated user
     const updatedUser = await this.userRepository.save(user);
@@ -28,17 +31,14 @@ export class UpdateUserUseCase {
     return this.toDto(updatedUser);
   }
 
-  private toDto(user: User): UserDto {
+  private toDto(user: User): UserResponseDto {
     return {
       id: user.id,
+      username: user.getUsername(),
       email: user.getEmail(),
-      fullName: user.getFullName(),
-      phone: user.getPhone(),
-      address: user.getAddress(),
-      role: user.getRole(),
-      status: user.getStatus(),
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      isDeleted: user.getIsDeleted(),
+      deletedAt: user.getDeletedAt(),
     };
   }
 }

@@ -3,44 +3,31 @@ import {
   Column,
   PrimaryColumn,
   CreateDateColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('users')
+@Entity('user')
 export class UserEntity {
-  @PrimaryColumn()
+  @PrimaryColumn('uuid', { name: 'Id' })
   id: string;
 
   @Column({ unique: true })
-  email: string;
+  Username: string;
+
+  @Column({ unique: true })
+  Email: string;
 
   @Column()
-  password: string;
+  PasswordHash: string;
 
-  @Column({ name: 'full_name' })
-  fullName: string;
+  @CreateDateColumn({ type: 'timestamp', name: 'CreatedAt' })
+  CreatedAt: Date;
+
+  @Column({ type: 'boolean', default: false })
+  IsDeleted: boolean;
 
   @Column({ nullable: true })
-  phone?: string;
+  DeletedBy?: string;
 
-  @Column({ nullable: true })
-  address?: string;
-
-  @Column({
-    type: 'varchar',
-    default: 'CUSTOMER',
-  })
-  role: string;
-
-  @Column({
-    type: 'varchar',
-    default: 'ACTIVE',
-  })
-  status: string;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt: Date;
+  @Column({ nullable: true, type: 'timestamp' })
+  DeletedAt?: Date;
 }

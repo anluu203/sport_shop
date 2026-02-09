@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepositoryPort } from '../../domain/ports/user.repository.port';
-import { UserDto } from '../dtos/user.dto';
+import { UserResponseDto } from '../../presentation/dtos/user-response.dto';
 import { UserNotFoundException } from '../../../../core/exceptions/domain.exception';
 import { User } from '../../domain/entities/user.entity';
 
@@ -8,7 +8,7 @@ import { User } from '../../domain/entities/user.entity';
 export class GetUserByIdUseCase {
   constructor(private readonly userRepository: UserRepositoryPort) {}
 
-  async execute(userId: string): Promise<UserDto> {
+  async execute(userId: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findById(userId);
 
     if (!user) {
@@ -18,17 +18,14 @@ export class GetUserByIdUseCase {
     return this.toDto(user);
   }
 
-  private toDto(user: User): UserDto {
+  private toDto(user: User): UserResponseDto {
     return {
       id: user.id,
+      username: user.getUsername(),
       email: user.getEmail(),
-      fullName: user.getFullName(),
-      phone: user.getPhone(),
-      address: user.getAddress(),
-      role: user.getRole(),
-      status: user.getStatus(),
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      isDeleted: user.getIsDeleted(),
+      deletedAt: user.getDeletedAt(),
     };
   }
 }

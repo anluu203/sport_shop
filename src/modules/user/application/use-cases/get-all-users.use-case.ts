@@ -1,28 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepositoryPort } from '../../domain/ports/user.repository.port';
-import { UserDto } from '../dtos/user.dto';
 import { User } from '../../domain/entities/user.entity';
+import { UserResponseDto } from '../../presentation/dtos/user-response.dto';
 
 @Injectable()
 export class GetAllUsersUseCase {
   constructor(private readonly userRepository: UserRepositoryPort) {}
 
-  async execute(): Promise<UserDto[]> {
+  async execute(): Promise<UserResponseDto[]> {
     const users = await this.userRepository.findAll();
     return users.map(user => this.toDto(user));
   }
 
-  private toDto(user: User): UserDto {
+  private toDto(user: User): UserResponseDto {
     return {
       id: user.id,
+      username: user.getUsername(),
       email: user.getEmail(),
-      fullName: user.getFullName(),
-      phone: user.getPhone(),
-      address: user.getAddress(),
-      role: user.getRole(),
-      status: user.getStatus(),
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      isDeleted: user.getIsDeleted(),
+      deletedAt: user.getDeletedAt(),
     };
   }
 }
