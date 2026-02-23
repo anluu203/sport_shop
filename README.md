@@ -1,3 +1,8 @@
+**Command**
+```
+npm run start:dev
+```
+
 **1.Cấu trúc thư mục tổng quan**
 
 Thay vì chia theo loại file (controllers, services, entities...), chúng ta sẽ chia theo Modules (Features), và trong mỗi Module sẽ có các tầng (Layers) rõ ràng.
@@ -172,3 +177,4 @@ import { UserSchema } from './infrastructure/entities/typeorm-user.entity';
 })
 export class UserModule {}
 ```
+

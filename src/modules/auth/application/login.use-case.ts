@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { UserRepositoryPort } from '../../user/domain/ports/user.repository.port';
 import { PasswordHashServicePort } from '../../user/domain/ports/password-hash.service.port';
 import { LoginRequestDto } from '../presentation/dtos/login-request.dto';
@@ -13,12 +14,12 @@ export class LoginUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
     private readonly passwordHashService: PasswordHashServicePort,
+    private readonly jwtService: JwtService,
   ) {}
 
   async execute(dto: LoginRequestDto): Promise<AuthResponseDto> {
     // Find user by email - tận dụng method từ UserRepository
     const user = await this.userRepository.findByEmail(dto.email);
-    console.log('Found user:', user);
     if (!user) {
       throw new UserNotFoundException(dto.email);
     }
@@ -33,18 +34,16 @@ export class LoginUseCase {
       dto.password,
       user.getPasswordHash(),
     );
-    console.log('valid password', isPasswordValid);
     if (!isPasswordValid) {
       throw new InvalidPasswordException('Invalid email or password');
     }
 
-    // Generate tokens (simplified - in production use JWT)
-    const accessToken = Buffer.from(`${user.id}:${Date.now()}`).toString(
-      'base64',
-    );
-    const refreshToken = Buffer.from(
-      `${user.id}:${Date.now()}:refresh`,
-    ).toString('base64');
+    // Generate tokens using JWT
+    const payload = {  email: user.getEmail(), userName: user.getUsername() };
+    const accessToken = await this.jwtService.signAsync(payload);
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '7d',
+    });
 
     return {
       accessToken,
